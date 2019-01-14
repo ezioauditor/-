@@ -1,0 +1,309 @@
+	/******************************************************************************************************/
+	/* 接收数据 */
+	/******************************************************************************************************/
+	while(1){
+	//拉低CE脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_3,  GPIO_PIN_RESET);
+		
+	//本地地址配置
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	//写寄存器指令+发送地址寄存器=0x20+0x10
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&ADDR_CONFIG,  1,  1000)!=HAL_OK);
+	
+	//地址写入:0x10,0x10,0x10,0x10,0x10
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&RX_ADDRESS0,  5,  1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	/******************************************************************************************************/
+	//接收地址配置
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	//写寄存器指令+发送地址寄存器=0x20+0x0A
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&RX_ADDR,  1,  1000)!=HAL_OK);
+	
+	//地址写入：0x01,0x01,0x01,0x01,0x01
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&TX_ADDRESS0,  5,  1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);	
+	
+	/******************************************************************************************************/
+	//EN_AA
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	//写寄存器指令+EN_AA寄存器=0x20+0x01
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&Wr_ENAA,  1,  1000)!=HAL_OK);
+	
+	//指令：0x01
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&EN_A,  1,  1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	
+	/******************************************************************************************************/
+	//EN_RXADDR
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&Wr_ENADDR,  1,  1000)!=HAL_OK);
+	
+	//指令：0x01
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&EN_ADD,  1,  1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	
+	/******************************************************************************************************/
+	//通信频率
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&Wr_RFCH,  1,  1000)!=HAL_OK);
+	
+	//次数写入
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&RFCH_COM,  1,  1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	/******************************************************************************************************/
+	//发射参数
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	//写寄存器指令+重传次数=0x20+0x06
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&Wr_RFsetup,  1,  1000)!=HAL_OK);
+	
+	//次数写入
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&RF_COM,  1,  1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	
+	/******************************************************************************************************/
+	//接收有效宽度
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	//写寄存器指令+配置接收数据数量=0x20+0x11
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&Wr_receivebyte,  1,  1000)!=HAL_OK);
+	
+	//指令：0000_0010
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&receive_byte,  1,  1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	
+	/******************************************************************************************************/
+	//清除RX_DR位
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	//写指令+状态寄存器地址：0x20+0x07
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&Wr_Status,  1,  1000)!=HAL_OK);
+	
+	//数据
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&status_clear,  1,  1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	
+	//测试状态：应为0x0E
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	//读寄存器指令+状态寄存器
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&Read_Status,  1,  1000)!=HAL_OK);
+	
+	//读状态寄存器数据
+	while(HAL_SPI_Receive(&hspi1, (uint8_t*)&status, 1, 1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	
+	//查看状态寄存器：应为0x40
+	//HAL_UART_Transmit(&huart1,(uint8_t*)&status,1,1000);
+	
+	/******************************************************************************************************/
+	//清RX FIFO
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	//重洗FIFO指令
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&FLUSH_RX,  1,  1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+
+	/******************************************************************************************************/
+	//CONFIG寄存器配置
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	//写寄存器指令+配置寄存器地址=0x20+0x00
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&COM_CONFIG,  1,  1000)!=HAL_OK);
+	
+	//指令：00001111
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&RX_CONFIG,  1,  1000)!=HAL_OK);
+	
+	//写完拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+
+	/******************************************************************************************************/
+	//接收
+	//receive=HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2);
+	//HAL_UART_Transmit(&huart1,(uint8_t*)&receive,1,1000);
+	
+	//拉高CE脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_3,  GPIO_PIN_SET);
+	
+	HAL_Delay(10);
+	
+	//拉低CE脚
+	/*HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_3,  GPIO_PIN_RESET);*/
+	
+	//准备接收
+	//HAL_UART_Transmit(&huart1,(uint8_t*)ready_receive,23,1000);
+	
+	/******************************************************************************************************/
+	
+	//IRQ低有效
+	while((receive=HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2))){
+		
+	}
+	
+	//HAL_UART_Transmit(&huart1,(uint8_t*)tran_ok,8,1000);
+	
+	//拉低CE脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_3,  GPIO_PIN_RESET);
+	
+	/******************************************************************************************************/
+	/*
+	//测试状态：应为0x40
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	//读寄存器指令+状态寄存器
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&Read_Status,  1,  1000)!=HAL_OK);
+	
+	//读状态寄存器数据
+	while(HAL_SPI_Receive(&hspi1, (uint8_t*)&status, 1, 1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	
+	//查看状态寄存器：应为0x40
+	//HAL_UART_Transmit(&huart1,(uint8_t*)&status,1,1000);
+	*/
+	
+	/******************************************************************************************************/
+	/*
+	//测试FIFO：应为0x10
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&Rd_REG,  1,  1000)!=HAL_OK);
+	
+	while(HAL_SPI_Receive(&hspi1, (uint8_t*)&test_config,  1,  1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	
+	HAL_UART_Transmit(&huart1,(uint8_t*)&test_config,1,1000);
+	*/
+	
+	/******************************************************************************************************/
+	//清除RX_DR位
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	//写指令+状态寄存器地址：0x20+0x07
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&Wr_Status,  1,  1000)!=HAL_OK);
+	
+	//数据
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&status_clear,  1,  1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	
+	/******************************************************************************************************/
+	/*
+	//RX_DR=1
+	if(status&0x40)
+		//接收成功
+		HAL_UART_Transmit(&huart1,(uint8_t*)tran_ok,8,0xffff);
+	else 
+		//接受失败
+		HAL_UART_Transmit(&huart1,(uint8_t*)tran_fail,10,0xffff);
+	*/
+	
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	//读取接收数据命令字
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&RD_RX_PLOAD,  1,  1000)!=HAL_OK);
+	
+	//接收数据
+	while(HAL_SPI_Receive(&hspi1, (uint8_t*)data_receive, 2, 1000) != HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	
+	//检查接受的数据（未处理）与发送端比对
+	//HAL_UART_Transmit(&huart1,(uint8_t*)data_receive,2,0xffff);
+	
+	/******************************************************************************************************/
+	/*
+	//测试FIFO:读完应为0x11
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&Rd_REG,  1,  1000)!=HAL_OK);
+	
+	while(HAL_SPI_Receive(&hspi1, (uint8_t*)&test_config,  1,  1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	
+	HAL_UART_Transmit(&huart1,(uint8_t*)&test_config,1,1000);*/
+
+	/******************************************************************************************************/
+	//清RX FIFO
+	//拉低CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_RESET);
+	
+	//重洗FIFO指令
+	while(HAL_SPI_Transmit(&hspi1, (uint8_t*)&FLUSH_RX,  1,  1000)!=HAL_OK);
+	
+	//拉高CSN引脚
+	HAL_GPIO_WritePin(GPIOA,  GPIO_PIN_4,  GPIO_PIN_SET);
+	
+	/******************************************************************************************************/
+
+	/******************************************************************************************************/
+	// 上位机处理数据 
+	/******************************************************************************************************/
+	//未处理数据
+	HAL_UART_Transmit(&huart1,(uint8_t*)data_receive,2,0xffff);
+	/*
+	//拼接成16位数据
+	//高位
+	MS=data_receive[0];
+	//低位
+	ML=data_receive[1];
+	result=result | MS;
+	result=result<<8;
+	result=result|ML;
+	//温度寄存器低5位无效数据
+	uint8_t result_a=result>>5;
+	
+	//HAL_UART_Transmit(&huart1,(uint8_t*) &MS,1,1000);
+	//HAL_UART_Transmit(&huart1,(uint8_t*) &ML,1,1000);
+	
+	//uart发送先低位后高位
+	//HAL_UART_Transmit(&huart1,(uint8_t*) &result_a,2,1000);*/
+	}
